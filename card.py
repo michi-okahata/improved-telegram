@@ -1,7 +1,7 @@
 import json
 
 class Card:
-    def __init__(self, tag: str, paragraph_list: list):
+    def __init__(self, tag: str = None, paragraph_list: list = None):
         self.tag = tag
         self.paragraphs = paragraph_list
 
@@ -21,14 +21,14 @@ class Card_Paragraph:
         }
 
 class Card_Run:
-    def __init__(self, run_text: str, run_style: str):
-        self.text = run_text
+    def __init__(self, run_style: str, run_text: str):
         self.style = run_style
+        self.text = run_text
     
     def to_dict(self):
         return {
-            "Text": self.text,
-            "Style": self.style
+            "Style": self.style,
+            "Text": self.text
         }
 
 if __name__ == "__main__":

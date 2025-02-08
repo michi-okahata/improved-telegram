@@ -2,65 +2,70 @@ from lxml import etree
 import json
 from card import Card, Card_Paragraph, Card_Run
 
-# Steal Kansas cards 
+# Next step is to generate cards + text dumps
+# Maintain paragraph integrity
 
-run1 = Card_Run("Economic decline", "Bold")
-run2 = Card_Run("doesn't cause war.", "Italic")
-
-# Create Card_Paragraph with a list of Card_Run objects
-paragraph = Card_Paragraph([run1, run2])
-
-# Create Card with a list of Card_Paragraph
-walt20 = Card("Economic decline doesn't cause war.", [paragraph])
-
-# Print the result of to_dict
-card_dict = walt20.to_dict()
-print(json.dumps(card_dict, indent=4))
+namespaces = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 
 def parse(filepath):
-    # Parse document
+    # Grab document
     doc = etree.parse(filepath)
-
-    # Document body
     body = doc.getroot().getchildren()[0]
 
     # Get tags
+    '''
     tags = {element.tag for element in body.iter()}
     stripped_tags = {etree.QName(tag).localname for tag in tags}
     print(stripped_tags)
-
-    namespaces = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
-    w_val = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val'
-
-    # Figure out Heading4 (Tag) and so on.
-    # Figure out card objects, new cards, jsonl.
-
-    # Grab text
-    text_elements = body.xpath('.//w:t', namespaces=namespaces)
-
-    '''
-    Grab text
-    Grab run style, text parent
-    Grab paragraph style, text parent parent OR 
     '''
 
-    # This works!
+    text_elements = body.xpath(".//w:t", namespaces=namespaces)
+
+    # Card might be useless, just make a dict
+    # Need to figure out how to parse paragraphs
+
     for text_element in text_elements:
-        parent_element = text_element.getparent()
-        style_element = parent_element.xpath('.//w:rStyle', namespaces=namespaces)
+        style, text = parse_element(text_element)
+        '''
+        Iterate through each text element
+        if tag -> new card, add tag
+        if paragraph -> add paragraph
+        if run -> add run and style 
 
-        if len(style_element) == 0:
-            parent_element = parent_element.getparent()
-            style_element = parent_element.xpath('.//w:pStyle', namespaces=namespaces)
+        if tag -> add a new card, new card is what is accessed
+        if paragraph -> add new paragraph to card
+        if run -> add run and style to paragraph   
+        '''
 
-        style = 'Normal/Card' if len(style_element) is 0 else parent_element.xpath('.//w:rStyle|.//w:pStyle', namespaces=namespaces)[0].get(w_val)
-        text = text_element.text
-        print(style + ": " + text)
+
+# Return the style and text for each text element.
+def parse_element(text_element):
+    parent_element = text_element.getparent()
+    style_element = parent_element.xpath(".//w:rStyle", namespaces=namespaces)
+
+    if len(style_element) == 0:
+        # Grab paragraph style
+        parent_element = parent_element.getparent() # Grandparent.
+        style_element = parent_element.xpath(".//w:pStyle", namespaces=namespaces)
+
+    style = "Normal/Card"
+    text = text_element.text
+
+    if len(style_element) != 0:
+        style_dump = parent_element.xpath(".//w:rStyle|.//w:pStyle", namespaces=namespaces)[0].get("{" + namespaces["w"] + "}val")
+        # Replace with a hash set of style names, e.g., emphasis v. boxes.
+        if style_dump == "Heading4": style = "Tag"
+        if style_dump == "Style13ptBold": style = "Cite"
+        if style_dump == "StyleUnderline": style = "Underline"
+        if style_dump == "Emphasis": style = "Emphasis"
+
+    print(style + ":" + text)
+    return style, text
 
 def main():
     # Parses output2.xml fine, re: speed for large documents
     # file = './cards/output2.xml'
-    file = './cards/output2.xml'
+    file = "./cards/output.xml"
     parse(file)
 
 main()
