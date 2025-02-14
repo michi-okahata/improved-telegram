@@ -7,6 +7,9 @@ namespaces = { "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/mai
 # resolve unicode translation issues
 # strip unicode
 # totally breaks with multiple cards :(
+# Tag/card alignment is super off, multiple of the same card but all cards seem to be in.
+# jcm uses 'text bold'
+# concatenation only works for the first card (underline v not)
 
 # parse xml
 def parse_xml(filepath):
@@ -31,7 +34,7 @@ def parse_xml(filepath):
                     card.tag += text; # add tag
                 else:
                     cards.append(card) # add existing card
-                    card = Card(tag=text) # new card
+                    card = Card(tag=text) # new card # TODO: merely changes the tag?
             
             elif style in {"Normal/Card", "Underline", "Cite"}:
                 paragraph.append((text, style)) # add body

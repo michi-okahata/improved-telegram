@@ -11,6 +11,6 @@ def extract(docxpath):
     with open(docxpath[:-5] + ".xml", 'wb') as output:
         output.write(xml_content)
 
-docxpath = "./1AC---UT Semis.docx"
+docxpath = "./1AC---UT Semis---mini.docx"
 
 extract(docxpath)
