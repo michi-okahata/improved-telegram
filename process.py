@@ -1,9 +1,12 @@
-# import zipfile
 from lxml import etree
 import json
 from card import Card
 
 namespaces = { "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main" }
+
+# resolve unicode translation issues
+# strip unicode
+# totally breaks with multiple cards :(
 
 # parse xml
 def parse_xml(filepath):
@@ -14,7 +17,7 @@ def parse_xml(filepath):
     paragraph_elements = body.xpath(".//w:p", namespaces=namespaces)
 
     cards = []
-    card = Card()
+    card = Card() # TODO: only grabs the same card
 
     for paragraph_element in paragraph_elements:
         text_elements = paragraph_element.xpath(".//w:t", namespaces=namespaces)
@@ -72,7 +75,7 @@ def parse_element(text_element):
 def main():
     # parses output2.xml fine, re: speed for large documents
     # file = './cards/output2.xml'
-    file = "./cards/output.xml"
+    file = "./1AC---UT Semis.xml"
     parse_xml(file)
 
 if __name__ == "__main__":
