@@ -8,9 +8,16 @@ def extract(docxpath):
         with doc.open('word/document.xml') as xml_file:
             xml_content = xml_file.read()
 
-    with open(docxpath[:-5] + ".xml", 'wb') as output:
+    xmlpath = docxpath[:-5] + ".xml"
+    with open(xmlpath, 'wb') as output:
         output.write(xml_content)
 
-docxpath = "./1AC---UT Semis---mini.docx"
+    return xmlpath
 
-extract(docxpath)
+def main():
+    # Test
+    docxpath = "./da---kant.docx"
+    extract(docxpath)
+
+if __name__ == "__main__":
+    main()

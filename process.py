@@ -1,5 +1,7 @@
-from lxml import etree
+import argparse
 import json
+from lxml import etree
+from extract import extract
 from card import Card
 
 namespaces = { "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main" }
@@ -36,7 +38,7 @@ def parse_xml(filepath):
                     cards.append(card) # add existing card
                     card = Card(tag=text) # new card # TODO: merely changes the tag?
             
-            elif style in {"Normal/Card", "Underline", "Cite"}:
+            elif style in {"Normal/Card", "Underline", "Emphasis", "Cite"}:
                 paragraph.append((text, style)) # add body
 
         if paragraph:  # avoid empty paragraphs, TODO: fix tag, tag
@@ -64,6 +66,7 @@ def parse_element(text_element):
     if len(style_element) != 0:
         style_dump = parent_element.xpath(".//w:rStyle|.//w:pStyle", namespaces=namespaces)[0].get("{" + namespaces["w"] + "}val")
         # replace with a dictionary of style names, e.g., emphasis v. boxes.
+        print(style_dump)
         if style_dump == "StyleUnderline": style = "Underline"
         if style_dump == "Emphasis": style = "Emphasis"
         if style_dump == "Style13ptBold": style = "Cite"
@@ -78,8 +81,13 @@ def parse_element(text_element):
 def main():
     # parses output2.xml fine, re: speed for large documents
     # file = './cards/output2.xml'
-    file = "./1AC---UT Semis.xml"
-    parse_xml(file)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("docx", help="file path")
+    args = parser.parse_args()
+    docxpath = args.docx
+
+    xmlpath = extract(docxpath)
+    parse_xml(xmlpath)
 
 if __name__ == "__main__":
     main()
