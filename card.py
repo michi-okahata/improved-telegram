@@ -1,7 +1,7 @@
 class Card:
-    def __init__(self, tag: str = "", paragraphs: list = []):
+    def __init__(self, tag: str = "", paragraphs: list = None):
         self.tag = tag
-        self.paragraphs = paragraphs
+        self.paragraphs = paragraphs if paragraphs is not None else []
 
     def to_dict(self):
         return {

@@ -6,12 +6,8 @@ from card import Card
 
 namespaces = { "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main" }
 
-# resolve unicode translation issues
-# strip unicode
-# totally breaks with multiple cards :(
-# Tag/card alignment is super off, multiple of the same card but all cards seem to be in.
-# jcm uses 'text bold'
-# concatenation only works for the first card (underline v not)
+# TODO: clean up this file
+# TODO: strip unicode from runs? need a solution
 
 # parse xml
 def parse_xml(filepath):
@@ -66,7 +62,6 @@ def parse_element(text_element):
     if len(style_element) != 0:
         style_dump = parent_element.xpath(".//w:rStyle|.//w:pStyle", namespaces=namespaces)[0].get("{" + namespaces["w"] + "}val")
         # replace with a dictionary of style names, e.g., emphasis v. boxes.
-        print(style_dump)
         if style_dump == "StyleUnderline": style = "Underline"
         if style_dump == "Emphasis": style = "Emphasis"
         if style_dump == "Style13ptBold": style = "Cite"
