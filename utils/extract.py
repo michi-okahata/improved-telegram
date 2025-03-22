@@ -9,7 +9,7 @@ def extract(docx_path: str) -> str:
     Returns: xml_path (str): xml file path.
     """
     with zipfile.ZipFile(docx_path, 'r') as doc:
-        print(doc.namelist())
+        # print(doc.namelist())
         with doc.open('word/document.xml') as xml_file:
             xml_content = xml_file.read()
 

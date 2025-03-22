@@ -1,7 +1,7 @@
 import json
 from lxml import etree
 
-from card import Card
+from utils.card import Card
 
 ns = {'w': "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 
@@ -23,7 +23,7 @@ def parse_xml(file_path):
             text, style = parse_element(text_element)
         
             if style == "Tag":
-                if not card.paragraphs:
+                if not card.body:
                     card.tag += text; # Add tag
                 else:
                     add_card(card)
@@ -32,20 +32,25 @@ def parse_xml(file_path):
             elif style in {"Normal/Card", "Underline", "Emphasis", "Cite"}:
                 paragraph.append((text, style)) # Add body
 
-        if paragraph: # Avoid empty paragraphs?
-            card.paragraphs.append(paragraph)
+        if not card.cite:
+            for t in paragraph:
+                if t[1] == "Cite":
+                    card.cite.append(paragraph)
+                    break
+        elif paragraph: # Avoid empty paragraphs?
+            card.body.append(paragraph)
     
-    if card.paragraphs:
+    if card.body:
         add_card(card)
 
 
 def add_card(card):
-    with open('cards.jsonl', 'w', encoding='utf-8') as f:
-        json.dump(card, f, indent=4, ensure_ascii=False)
+    with open('cards.jsonl', 'a', encoding='utf-8') as f:
+        json.dump(card.to_dict(), f, indent=4, ensure_ascii=False)
 
 
 def parse_element(text_element):
-    parent_element = text.getparent()
+    parent_element = text_element.getparent()
     style_element = parent_element.xpath(".//w:rStyle", namespaces=ns)
 
     if len(style_element) == 0:
