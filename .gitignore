@@ -1,5 +1,6 @@
 # Cards/data
-cards/
+.cards/
+data/
 
 # OSX
 .DS_Store

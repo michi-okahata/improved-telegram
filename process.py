@@ -1,11 +1,11 @@
 import argparse
 
-from utils.extract import extract
-from utils.parse import parse_xml
+from utils import extract
+from utils import parse_xml
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("docx", help="file path")
+    parser.add_argument('docx', help='file path')
     args = parser.parse_args()
     docxpath = args.docx
 

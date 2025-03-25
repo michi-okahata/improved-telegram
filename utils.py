@@ -1,7 +1,32 @@
+import os
 import json
+import zipfile
+
 from lxml import etree
 
-from utils.card import Card
+class Card:
+    def __init__(self, tag: str = "", cite: list = None, body: list = None):
+        self.tag = tag
+        self.cite = cite if cite is not None else []
+        self.body = body if body is not None else []
+
+    def to_dict(self):
+        return {
+            "tag": self.tag,
+            "cite": self.cite, 
+            "body": self.body
+        }
+
+
+def extract(docx_path):
+    with zipfile.ZipFile(docx_path, 'r') as doc:
+        with doc.open('word/document.xml') as xml_file:
+            xml_content = xml_file.read()
+
+    xml_path = os.path.splitext(docx_path)[0] + '.xml'
+    with open(xml_path, 'wb') as output:
+        output.write(xml_content)
+
 
 ns = {'w': "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 
@@ -10,6 +35,7 @@ def parse_xml(file_path):
     # Grab xml
     document = etree.parse(file_path)
     xml_body = document.getroot().getchildren()[0]
+    jsonpath = os.path.splitext(file_path)[0] + '.jsonl'
 
     paragraph_elements = xml_body.xpath('.//w:p', namespaces=ns)
 
@@ -26,7 +52,7 @@ def parse_xml(file_path):
                 if not card.body:
                     card.tag += text; # Add tag
                 else:
-                    add_card(card)
+                    add_card(card, jsonpath)
                     card = Card(tag=text)
             
             elif style in {"Normal/Card", "Underline", "Emphasis", "Cite"}:
@@ -41,12 +67,13 @@ def parse_xml(file_path):
             card.body.append(paragraph)
     
     if card.body:
-        add_card(card)
+        add_card(card, jsonpath)
 
 
-def add_card(card):
-    with open('cards.jsonl', 'a', encoding='utf-8') as f:
-        json.dump(card.to_dict(), f, indent=4, ensure_ascii=False)
+def add_card(card, jsonpath):
+    with open(jsonpath, 'a', encoding='utf-8') as f:
+        json_str = json.dumps(card.to_dict())
+        f.write(json_str + '\n')
 
 
 def parse_element(text_element):
