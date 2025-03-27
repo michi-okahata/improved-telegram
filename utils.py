@@ -26,7 +26,8 @@ def extract(docx_path):
     xml_path = os.path.splitext(docx_path)[0] + '.xml'
     with open(xml_path, 'wb') as output:
         output.write(xml_content)
-
+    
+    return xml_path
 
 ns = {'w': "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 

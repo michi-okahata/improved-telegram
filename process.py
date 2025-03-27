@@ -7,10 +7,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('docx', help='file path')
     args = parser.parse_args()
-    docxpath = args.docx
+    docx_path = args.docx
 
-    xmlpath = extract(docxpath)
-    parse_xml(xmlpath)
+    xml_path = extract(docx_path)
+    parse_xml(xml_path)
 
 if __name__ == "__main__":
     main()
